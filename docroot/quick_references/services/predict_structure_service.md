@@ -2,15 +2,16 @@
 
 ## Overview
 
-The Protein Structure Prediction Service predicts the 3D atomic structure of proteins, protein complexes, and protein–DNA / RNA / ligand assemblies from sequence input. It exposes five state-of-the-art folding engines through a single unified form:
+The Protein Structure Prediction Service predicts the 3D atomic structure of proteins, protein complexes, and protein–DNA / RNA / ligand assemblies from sequence input. It exposes six folding engines through a single unified form:
 
 | Engine | Family | Best for |
 |---|---|---|
 | **Boltz-2** | Diffusion (co-folding) | Protein + nucleic-acid + ligand / SMILES; binding-affinity-aware |
 | **OpenFold 3** | Diffusion (AF3-class, open) | Same scope as Boltz, fully open weights |
 | **Chai-1** | Diffusion (AF3-class) | Multi-chain protein complexes, ligands by CCD code |
-| **AlphaFold 2** | Co-evolutionary (MSA + Evoformer) | High-accuracy monomer / multimer when MSA is rich |
 | **ESMFold** | Single-sequence (protein language model) | Fast, CPU-capable monomers; orphan / designed sequences |
+| **ESMFold2** *(preview)* | Diffusion (ESM / ESMC) | All-atom complexes from a single sequence; protein + nucleic-acid + ligand / SMILES |
+| **AlphaFold 2** *(legacy)* | Co-evolutionary (MSA + Evoformer) | Highest monomer accuracy with a rich MSA — but slow and protein-only; being superseded by the AF3-class diffusion engines |
 
 The service picks the best available engine automatically when `Prediction Tool` is left at **Auto**, or you can pin a specific one. Parameter mapping, format conversion (FASTA → YAML / JSON, mmCIF → PDB, A3M → Parquet), and confidence normalization are handled for you. The output is a ranked set of structures plus a unified confidence report.
 
@@ -38,10 +39,11 @@ Choose the structure prediction engine. Leaving this at **Auto** lets the servic
 | `boltz` | Boltz-2 | protein, DNA, RNA, CCD ligand, SMILES | Upload required |
 | `openfold` | OpenFold 3 | protein, DNA, RNA, CCD ligand, SMILES | Upload required |
 | `chai` | Chai-1 | protein, DNA, RNA, CCD ligand | Upload required |
-| `alphafold` | AlphaFold 2 | protein only | Built from BV-BRC's local databases |
 | `esmfold` | ESMFold | protein only | None (single-sequence) |
+| `esmfold2` *(preview)* | ESMFold2 | protein, DNA, RNA, CCD ligand, SMILES | Optional |
+| `alphafold` *(legacy)* | AlphaFold 2 | protein only | Built from BV-BRC's local databases |
 
-**Auto-select priority** (when `tool = auto`): Boltz → OpenFold → Chai → ESMFold → AlphaFold. The selector inspects your other inputs and falls back as follows:
+**Auto-select priority** (when `tool = auto`): Boltz → OpenFold → Chai → ESMFold → AlphaFold. The selector inspects your other inputs and falls back as described below. **ESMFold2** is selectable explicitly (`esmfold2`) but is **not yet part of Auto** (preview); **AlphaFold 2** is the last-resort fallback (legacy).
 
 | Protein | DNA / RNA / ligand / SMILES | MSA File | → Auto picks |
 |:-:|:-:|:-:|---|
@@ -174,8 +176,9 @@ These are conservative ceilings the AppService uses for queue scheduling. Actual
 | Boltz-2 | 8 | 64 GB | 4 h | 1–3 min |
 | OpenFold 3 | 8 | 64 GB | 4 h | 2–5 min |
 | Chai-1 | 8 | 64 GB | 4 h | 2–5 min |
-| AlphaFold 2 | 16 | 96 GB | 8 h | 30–90 min (MSA + 5 models) |
 | ESMFold | 8 | 32 GB | 1 h | 20–60 s (GPU) / 2–6 min (CPU) |
+| ESMFold2 *(preview)* | 8 | — | 4 h | not yet published |
+| AlphaFold 2 *(legacy)* | 16 | 96 GB | 8 h | 30–90 min (MSA + 5 models) |
 
 ## References
 
